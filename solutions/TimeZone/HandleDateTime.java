@@ -1,77 +1,95 @@
 package solutions.TimeZone;
 
-import java.time.LocalDateTime;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.DateTimeException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeParseException;
 
 public class HandleDateTime {
 
-    HandleDateTime() {
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public HandleDateTime() {
     }
 
     private boolean isValidZone(String zoneId) {
         try {
-            ZoneId zone = ZoneId.of(zoneId);
+            ZoneId.of(zoneId);
             return true;
         } catch (DateTimeException e) {
             return false;
         }
     }
 
-    private boolean isDateValid(String date) {
-        return date.matches("^\\d{4}/\\d{2}/\\{2} [0-2][0-9]:[0-6][0-9]:[0-6][0-9]$");
-    }
-
     public String getZoneHour(String timeZone) {
-
-        if (isValidZone(timeZone) != true)
-            return "La zona ingresada es invalida";
+        if (!isValidZone(timeZone))
+            return "La zona ingresada es invalida.";
 
         ZoneId zone = ZoneId.of(timeZone);
-        Instant instantNow = Instant.now();
-        ZonedDateTime zoneHour = instantNow.atZone(zone);
 
-        return Optional.of(zoneHour).toString();
+        // ✅ mismo instante, distinta zona
+        Instant now = Instant.now();
+        ZonedDateTime zdt = now.atZone(zone);
+
+        return "Now (" + timeZone + "): " + zdt.format(FMT) + " | Instant: " + now;
     }
 
-    public Object compareLocalHourZone(String zone) {
+    public String compareLocalHourZone(String zone) {
+        if (!isValidZone(zone))
+            return "Zona invalida.";
 
-        if (isValidZone(zone) != true)
-            return "Zona invalida";
+        ZoneId target = ZoneId.of(zone);
+        ZoneId system = ZoneId.systemDefault();
+
+        // ✅ mismo instante
+        Instant now = Instant.now();
+        ZonedDateTime systemZdt = now.atZone(system);
+        ZonedDateTime targetZdt = now.atZone(target);
+
+        // ✅ diferencia real de huso: offsets (en minutos)
+        int diffMinutes = (targetZdt.getOffset().getTotalSeconds() - systemZdt.getOffset().getTotalSeconds()) / 60;
+
+        return """
+                System: %s (%s)
+                Target: %s (%s)
+                Offset difference: %d minutes
+                Instant: %s
+                """.formatted(
+                systemZdt.format(FMT), system,
+                targetZdt.format(FMT), target,
+                diffMinutes,
+                now);
+    }
+
+    public String eventHandleMinutes(String zone, String date) {
+        if (!isValidZone(zone))
+            return "Zona invalida.";
 
         ZoneId zoneId = ZoneId.of(zone);
 
-        ZonedDateTime zoneHour = ZonedDateTime.now(zoneId);
-        ZonedDateTime systemZoneHour = ZonedDateTime.now();
+        // Parse con formato correcto
+        LocalDateTime eventLocal;
+        try {
+            eventLocal = LocalDateTime.parse(date, FMT);
+        } catch (DateTimeParseException e) {
+            return "Fecha invalida. Usa formato: yyyy-MM-dd HH:mm:ss";
+        }
 
-        int rangeMinutes = Math.abs(zoneHour.getMinute() - systemZoneHour.getMinute());
+        // ✅ evento en esa zona -> instante absoluto
+        ZonedDateTime eventZdt = eventLocal.atZone(zoneId);
+        Instant eventInstant = eventZdt.toInstant();
 
-        List<Object> data = new ArrayList<>();
-        data.add(zoneHour.toString());
-        data.add(systemZoneHour.toString());
-        data.add(rangeMinutes);
+        Instant now = Instant.now();
 
-        return data;
+        long minutes = Duration.between(now, eventInstant).toMinutes();
+
+        if (minutes > 0) {
+            return "Faltan " + minutes + " minutos para el evento. (Evento: " + eventZdt.format(FMT) + " " + zoneId
+                    + ")";
+        } else if (minutes < 0) {
+            return "El evento ya ocurrio hace " + Math.abs(minutes) + " minutos. (Evento: " + eventZdt.format(FMT) + " "
+                    + zoneId + ")";
+        } else {
+            return "El evento es AHORA. (Evento: " + eventZdt.format(FMT) + " " + zoneId + ")";
+        }
     }
-
-    public Object eventHandleMinutes(String zone, String date) {
-        if (isDateValid(date) != true || isValidZone(zone) != true)
-            return "Informacion proporcionada invalida";
-
-        ZoneId zoneId = ZoneId.of(zone);
-        ZonedDateTime zoneHour = ZonedDateTime.now(zoneId);
-
-        ZonedDateTime eventZoneHour = ZonedDateTime.of(LocalDateTime.parse(date), zoneId);
-
-        int rangeMinutes = Math.abs(zoneHour.getMinute() - eventZoneHour.getMinute());
-
-        return rangeMinutes;
-    }
-
 }

@@ -1,11 +1,10 @@
-import solutions.ExecutionLog;
+import solutions.TimeZone.Menu;
 
 public class Main {
 
     public static void main(String[] args) {
-        ExecutionLog newExec = new ExecutionLog();
+        Menu menu = new Menu();
+        menu.mainMenu();
 
-        System.out.println(newExec.getDateAndHour());
-        System.out.println(newExec.getUserName());
     }
 }
