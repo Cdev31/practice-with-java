@@ -356,3 +356,182 @@ provocará esta excepción.
 ### Uso típico
 
 Se usa para manejar errores al **parsear fechas desde texto**.
+
+# Métodos Útiles de List en Java
+
+## 📋 Operaciones Básicas
+
+### Agregar elementos
+
+```java
+list.add(elemento);                    // Agrega al final
+list.add(indice, elemento);             // Agrega en posición específica
+list.addAll(otraLista);                 // Agrega todos los elementos
+```
+
+### Eliminar elementos
+
+```java
+list.remove(indice);                    // Elimina por índice
+list.remove(elemento);                   // Elimina por objeto
+list.removeAll(coleccion);               // Elimina todos los de la colección
+list.clear();                            // Elimina todos
+```
+
+### Obtener elementos
+
+```java
+list.get(indice);                        // Obtiene elemento por índice
+list.indexOf(elemento);                   // Obtiene índice de elemento
+list.lastIndexOf(elemento);               // Último índice del elemento
+list.subList(inicio, fin);                // Obtiene sublista
+```
+
+## 🔍 Búsqueda y Verificación
+
+### Verificar existencia
+
+```java
+list.contains(elemento);                  // Si contiene el elemento
+list.containsAll(coleccion);               // Si contiene todos
+list.isEmpty();                            // Si está vacía
+```
+
+### Buscar elementos
+
+```java
+// Stream API (Java 8+)
+list.stream()
+    .filter(item -> item.getPropiedad().equals(valor))
+    .collect(Collectors.toList());
+
+// Parallel Stream (para listas grandes)
+list.parallelStream()
+    .filter(item -> item.getPropiedad() > 100)
+    .findAny();
+
+// forEach tradicional
+list.forEach(item -> {
+    if (item.getNombre().startsWith("A")) {
+        System.out.println(item);
+    }
+});
+```
+
+## 🔄 Ordenamiento y Transformación
+
+### Ordenar
+
+```java
+Collections.sort(lista);                    // Orden natural
+Collections.sort(lista, comparator);         // Con comparador
+lista.sort(comparator);                      // Java 8+
+lista.sort(Comparator.comparing(Item::getPropiedad));
+```
+
+### Transformar
+
+```java
+// Mapear a otra lista
+List<String> nombres = personas.stream()
+    .map(Persona::getNombre)
+    .collect(Collectors.toList());
+
+// Filtrar y transformar
+List<String> resultados = personas.stream()
+    .filter(p -> p.getEdad() > 18)
+    .map(Persona::getNombre)
+    .collect(Collectors.toList());
+```
+
+## 📊 Métodos de Información
+
+```java
+list.size();                                 // Tamaño de la lista
+list.toArray();                              // Convertir a array
+list.toArray(new T[0]);                       // Convertir a array tipado
+list.hashCode();                              // Código hash
+list.iterator();                              // Obtener iterador
+list.listIterator();                          // ListIterator con más opciones
+```
+
+## 🔧 Métodos de Modificación
+
+```java
+list.set(indice, elemento);                   // Reemplazar elemento
+list.replaceAll(operador);                     // Reemplazar todos
+list.retainAll(coleccion);                      // Mantener solo los de colección
+```
+
+## 💡 Ejemplos Prácticos con Objetos
+
+### Buscar en lista de objetos
+
+```java
+List<Persona> personas = new ArrayList<>();
+
+// Encontrar primera persona con cierta edad
+Persona encontrada = personas.stream()
+    .filter(p -> p.getEdad() == 25)
+    .findFirst()
+    .orElse(null);
+
+// Buscar múltiples coincidencias
+List<Persona> mayores = personas.stream()
+    .filter(p -> p.getEdad() >= 18)
+    .collect(Collectors.toList());
+
+// Verificar si existe algún elemento que cumpla condición
+boolean existeMayor = personas.stream()
+    .anyMatch(p -> p.getEdad() > 60);
+
+// Contar elementos que cumplan condición
+long totalJovenes = personas.stream()
+    .filter(p -> p.getEdad() < 18)
+    .count();
+```
+
+### Usando Predicates (Java 8+)
+
+```java
+// Definir predicados reutilizables
+Predicate<Persona> esMayorEdad = p -> p.getEdad() >= 18;
+Predicate<Persona> nombreEmpiezaConA = p -> p.getNombre().startsWith("A");
+
+// Combinar predicados
+List<Persona> resultado = personas.stream()
+    .filter(esMayorEdad.and(nombreEmpiezaConA))
+    .collect(Collectors.toList());
+```
+
+## 🎯 Métodos Específicos por Tipo de List
+
+### ArrayList (más usado)
+
+```java
+ArrayList<String> arrayList = new ArrayList<>();
+arrayList.ensureCapacity(100);                // Reservar capacidad
+arrayList.trimToSize();                        // Ajustar al tamaño actual
+```
+
+### LinkedList
+
+```java
+LinkedList<String> linkedList = new LinkedList<>();
+linkedList.addFirst(elemento);                  // Agregar al inicio
+linkedList.addLast(elemento);                    // Agregar al final
+linkedList.getFirst();                           // Obtener primero
+linkedList.getLast();                             // Obtener último
+linkedList.removeFirst();                         // Eliminar primero
+linkedList.removeLast();                           // Eliminar último
+```
+
+## 📝 Notas Importantes
+
+- **List** es una interfaz, necesitas implementaciones concretas como `ArrayList`, `LinkedList`
+- **ArrayList**: Acceso rápido por índice, lento para insertar/eliminar en medio
+- **LinkedList**: Bueno para inserciones/eliminaciones frecuentes, lento para acceso por índice
+- **Vector**: Versión antigua sincronizada (thread-safe)
+- **CopyOnWriteArrayList**: Thread-safe para lecturas concurrentes
+
+Estos métodos te permitirán manejar la mayoría de operaciones comunes con List en Java de manera efectiva.
