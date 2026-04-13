@@ -6,6 +6,16 @@
 java -Xmx2G -Denv=prod -Dport=8080 Main
 ```
 
+### Ejecutar desde la consola para compilar en java y luego ejecutar
+
+```bash
+javac -d <directory_out> <archive>.java
+```
+
+```bash
+javac -cp <directory> <archive>.java
+```
+
 # Referencia de Librerías en Java
 
 ## 1. Scanner

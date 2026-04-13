@@ -1,6 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java,venv,linux,microsoftoffice
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,venv,linux,microsoftoffice
-
+out/
 ### Java ###
 # Compiled class file
 *.class
